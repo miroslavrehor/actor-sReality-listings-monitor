@@ -157,7 +157,7 @@ const extractProperties = async ({ page, dataset }) => {
                 const locality = listing.querySelector('.locality').textContent;
                 const normPrice = listing.querySelector('.norm-price').textContent;
 
-                const areas = name.textContent.replaceAll(" ", "").match(/[-+]?[0-9]*\.?[0-9]+/g);
+                const areas = name.replaceAll(" ", "").match(/[-+]?[0-9]*\.?[0-9]+/g);
                 const areaLiving = areas[0];
                 const areaLand = areas[1];
 
