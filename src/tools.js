@@ -149,7 +149,9 @@ const extractProperties = async ({ page, dataset }) => {
             if (!listing.querySelector('span[class*=tip]')) {
                 output.push({
                     url: listing.querySelector('a').href,
-                    listing: listing
+                    test1: listing.querySelector('.name'),
+                    test2: listing.querySelector('.locality'),
+                    test3: listing.querySelector('.norm-price'),
                 });
             }
         });
