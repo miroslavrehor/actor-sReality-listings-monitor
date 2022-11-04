@@ -194,7 +194,7 @@ const extractProperties = async ({ page, dataset }) => {
                     cityDistrict: cityDistrict,
                     price: price,
                     // description: TBD, na to kasleme, nejake labely zbytecne jenom
-                    pricePerSqm: pricePerSqm,
+                    pricePerSqm: Math.round(pricePerSqm),
                 });
             }
         });
