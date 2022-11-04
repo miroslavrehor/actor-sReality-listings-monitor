@@ -147,17 +147,26 @@ const extractProperties = async ({ page, dataset }) => {
         const output = [];
         [...document.querySelectorAll('.dir-property-list > .property')].map((listing) => {
             if (!listing.querySelector('span[class*=tip]')) {
+                log.debug(listing.innerText);
+
                 // name:        Prodej  rodinného domu 333 m², pozemek 1 184 m²
                 //              Prodej bytu 1+kk 37 m²
                 // locality:    Smrková, Doksy
                 // norm-price:  33 330 000 Kč
                 const name = listing.querySelector('.name').textContent;
                 const locality = listing.querySelector('.locality').textContent;
-                const price = listing.querySelector('.norm-price').textContent.replace("Kč", "").replaceAll(" ", "");
+                const normPrice = listing.querySelector('.norm-price').textContent;
 
                 const areas = name.textContent.replaceAll(" ", "").match(/[-+]?[0-9]*\.?[0-9]+/g);
                 const areaLiving = areas[0];
                 const areaLand = areas[1];
+
+                let price = "";
+                let pricePerSqm = "";
+                if (normPrice) {
+                    price = normPrice.replace("Kč", "").replaceAll(" ", "");
+                    pricePerSqm = price / areaLiving;
+                }
 
                 const url = listing.querySelector('a').href;
 
@@ -172,7 +181,7 @@ const extractProperties = async ({ page, dataset }) => {
                     city: locality.split(", ")[1],
                     price: price,
                     // description: TBD, na to kasleme, nejake labely zbytecne jenom
-                    pricePerSqm: price / areaLiving,
+                    pricePerSqm: pricePerSqm,
                 });
             }
         });
