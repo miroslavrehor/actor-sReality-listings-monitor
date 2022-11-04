@@ -151,7 +151,7 @@ const extractProperties = async ({ page, dataset }) => {
                 //              Prodej bytu 1+kk 37 m²
                 // locality:    Smrková, Doksy
                 // norm-price:  33 330 000 Kč
-                const name = listing.querySelector('.name');
+                const name = listing.querySelector('.name').textContent;
                 const locality = listing.querySelector('.locality').textContent;
                 const price = listing.querySelector('.norm-price').textContent.replace("Kč", "").replaceAll(" ", "");
 
