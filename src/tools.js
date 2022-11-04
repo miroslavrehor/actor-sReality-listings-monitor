@@ -160,13 +160,13 @@ const extractProperties = async ({ page, dataset }) => {
 
                 const namePart1 = name.split(", ")[0];
                 const property = namePart1;
-                const areaLiving = namePart1.match(/(\s([0-9]+\s)+)/g).replaceAll(" ", "").replaceAll(" ", "");
+                const areaLiving = namePart1.match(/(\s([0-9]+\s)+)/g)[0].replace(/\s/g,'');
 
                 const namePart2 = name.split(", ")[1];
                 let areaLand = "";
                 if (namePart2) {
                     // muze byt prazdne u bytu
-                    areaLand = namePart2.replaceAll(" ", "").match(/.*([0-9]+) m²/)[1];
+                    areaLand = namePart2.replace(/\s/g,'').match(/([0-9]+)/g)[1];
                 }
 
                 const cityLong = locality.split(", ")[1];
@@ -176,7 +176,7 @@ const extractProperties = async ({ page, dataset }) => {
                 let price = "";
                 let pricePerSqm = "";
                 if (normPrice) {
-                    price = normPrice.replace("Kč", "").replace(" za měsíc", "").replaceAll(" ", "");
+                    price = normPrice.replace("Kč", "").replace(" za měsíc", "").replace(/\s/g,'');
                     pricePerSqm = price / areaLiving;
                 }
 
