@@ -159,10 +159,12 @@ const extractProperties = async ({ page, dataset }) => {
                 const areaLiving = areas[0];
                 const areaLand = areas[1];
 
+                const url = listing.querySelector('a').href;
+
                 output.push({
                     date: new Date().toISOString().slice(0, 10),
                     id: url.match(/.*\/([0-9]+)/)[1],
-                    url: listing.querySelector('a').href,
+                    url: url,
                     property: name.split(", ")[0],
                     areaLiving: areas[0],
                     areaLand: areaLand === undefined ? "" : areaLand,   // muze byt prazdne u bytu
