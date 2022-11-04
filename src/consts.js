@@ -60,7 +60,8 @@ module.exports = {
             },
         },
         house: {
-            url: 'https://www.sreality.cz/hledani/domy',
+            // url: 'https://www.sreality.cz/hledani/domy',
+            url: 'https://www.sreality.cz/hledani/domy/rodinne-domy?no_shares=1&bez-aukce=1',
             title: 'Domy',
             iconPath: 'icons/duplex.svg',
             subtypes: {
