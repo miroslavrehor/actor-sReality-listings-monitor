@@ -147,24 +147,36 @@ const extractProperties = async ({ page, dataset }) => {
         const output = [];
         [...document.querySelectorAll('.dir-property-list > .property')].map((listing) => {
             if (!listing.querySelector('span[class*=tip]')) {
-                console.log(listing.innerText);
-
-                // name:        Prodej  rodinného domu 333 m², pozemek 1 184 m²
-                //              Prodej bytu 1+kk 37 m²
+                // name:        Prodej  rodinného domu 1 333 m², pozemek 2 184 m²
+                //              Prodej bytu 1+kk 1 137 m²
+                //              Pronájem bytu 2+1 1 163 m²
                 // locality:    Smrková, Doksy
+                //              Anny Letenské, Praha 2 - Vinohrady
                 // norm-price:  33 330 000 Kč
+                //              30 000 Kč za měsíc
                 const name = listing.querySelector('.name').textContent;
                 const locality = listing.querySelector('.locality').textContent;
                 const normPrice = listing.querySelector('.norm-price').textContent;
 
-                const areas = name.replaceAll(" ", "").match(/[-+]?[0-9]*\.?[0-9]+/g);
-                const areaLiving = areas[0];
-                const areaLand = areas[1];
+                const namePart1 = name.split(", ")[0];
+                const property = namePart1;
+                const areaLiving = namePart1.match(/(\s([0-9]+\s)+)/g).replaceAll(" ", "").replaceAll(" ", "");
+
+                const namePart2 = name.split(", ")[1];
+                let areaLand = "";
+                if (namePart2) {
+                    // muze byt prazdne u bytu
+                    areaLand = namePart2.replaceAll(" ", "").match(/.*([0-9]+) m²/)[1];
+                }
+
+                const cityLong = locality.split(", ")[1];
+                const city = cityLong.split(" - ")[0];
+                const cityDistrict = cityLong.split(" - ")[1];
 
                 let price = "";
                 let pricePerSqm = "";
                 if (normPrice) {
-                    price = normPrice.replace("Kč", "").replaceAll(" ", "");
+                    price = normPrice.replace("Kč", "").replace(" za měsíc", "").replaceAll(" ", "");
                     pricePerSqm = price / areaLiving;
                 }
 
@@ -174,11 +186,12 @@ const extractProperties = async ({ page, dataset }) => {
                     date: new Date().toISOString().slice(0, 10),
                     id: url.match(/.*\/([0-9]+)/)[1],
                     url: url,
-                    property: name.split(", ")[0],
-                    areaLiving: areas[0],
-                    areaLand: areaLand === undefined ? "" : areaLand,   // muze byt prazdne u bytu
+                    property: property,
+                    areaLiving: areaLiving,
+                    areaLand: areaLand,
                     street: locality.split(", ")[0],
-                    city: locality.split(", ")[1],
+                    city: city,
+                    cityDistrict: cityDistrict,
                     price: price,
                     // description: TBD, na to kasleme, nejake labely zbytecne jenom
                     pricePerSqm: pricePerSqm,
