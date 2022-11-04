@@ -147,7 +147,7 @@ const extractProperties = async ({ page, dataset }) => {
         const output = [];
         [...document.querySelectorAll('.dir-property-list > .property')].map((listing) => {
             if (!listing.querySelector('span[class*=tip]')) {
-                log.info(listing.innerText);
+                console.log(listing.innerText);
 
                 // name:        Prodej  rodinného domu 333 m², pozemek 1 184 m²
                 //              Prodej bytu 1+kk 37 m²
