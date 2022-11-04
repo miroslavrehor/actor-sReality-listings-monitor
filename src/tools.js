@@ -147,11 +147,30 @@ const extractProperties = async ({ page, dataset }) => {
         const output = [];
         [...document.querySelectorAll('.dir-property-list > .property')].map((listing) => {
             if (!listing.querySelector('span[class*=tip]')) {
+                // name:        Prodej  rodinného domu 333 m², pozemek 1 184 m²
+                //              Prodej bytu 1+kk 37 m²
+                // locality:    Smrková, Doksy
+                // norm-price:  33 330 000 Kč
+                const name = listing.querySelector('.name');
+                const locality = listing.querySelector('.locality').textContent;
+                const price = listing.querySelector('.norm-price').textContent.replace("Kč", "").replaceAll(" ", "");
+
+                const areas = name.textContent.replaceAll(" ", "").match(/[-+]?[0-9]*\.?[0-9]+/g);
+                const areaLiving = areas[0];
+                const areaLand = areas[1];
+
                 output.push({
+                    date: new Date().toISOString().slice(0, 10),
+                    id: url.match(/.*\/([0-9]+)/)[1],
                     url: listing.querySelector('a').href,
-                    test1: listing.querySelector('.name'),
-                    test2: listing.querySelector('.locality'),
-                    test3: listing.querySelector('.norm-price'),
+                    property: name.split(", ")[0],
+                    areaLiving: areas[0],
+                    areaLand: areaLand === undefined ? "" : areaLand,   // muze byt prazdne u bytu
+                    street: locality.split(", ")[0],
+                    city: locality.split(", ")[1],
+                    price: price,
+                    // description: TBD, na to kasleme, nejake labely zbytecne jenom
+                    pricePerSqm: price / areaLiving,
                 });
             }
         });
