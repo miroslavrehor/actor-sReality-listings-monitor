@@ -43,6 +43,8 @@ Apify.main(async () => {
         requestQueue,
         proxyConfiguration,
         handlePageFunction: async ({ page, request }) => {
+            // na 30 000 ms to casto pada, tak zkusime 100k
+            await page.setDefaultNavigationTimeout(100000);
             const { userData: { label } } = request;
             if (label === 'startPage') {
                 await selectOfferType({ page, offerType });
