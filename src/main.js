@@ -27,7 +27,7 @@ Apify.main(async () => {
 
     // const sources = getSearchUrl(type);
     const sources = [];
-    for (let i = 1; i < 20; i++) {
+    for (let i = 15; i < 20; i++) {
         sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=${i}&bez-aukce=1`, userData: { label: 'searchPage' } });
     }
     sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1000&bez-aukce=1`, userData: { label: 'searchPage' } });
