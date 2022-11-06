@@ -236,8 +236,7 @@ const extractProperties = async ({ page, dataset }) => {
 }
 
 const enqueueNextPage = async ({ page, maxPages, requestQueue }) => {
-    log.info(requestQueue);
-    log.info(page);
+    log.info(`requestQueue: ${requestQueue.getInfo()}`);
     await removeCookiesConsentBanner(page);
     const currentPage = await page.evaluate(() => {
         const currentPageSelector = document.querySelector('.paging-item > a.active');
@@ -247,6 +246,7 @@ const enqueueNextPage = async ({ page, maxPages, requestQueue }) => {
         const nextPageSelector = document.querySelector('.paging-item > a.paging-next');
         return nextPageSelector ? nextPageSelector.href : null;
     });
+    log.info(`nextPageUrl: ${nextPageUrl}`);
     if ((currentPage && maxPages && currentPage < maxPages) || (!maxPages && nextPageUrl)) {
         await requestQueue.addRequest({ url: nextPageUrl, userData: { label: 'searchPage' } });
     }
