@@ -43,8 +43,6 @@ Apify.main(async () => {
         requestQueue,
         proxyConfiguration,
         handlePageFunction: async ({ page, request }) => {
-            // na 30 000 ms to casto pada, tak zkusime 100k
-            await page.setDefaultNavigationTimeout(100000);
             const { userData: { label } } = request;
             if (label === 'startPage') {
                 await selectOfferType({ page, offerType });
@@ -60,9 +58,11 @@ Apify.main(async () => {
         },
         preNavigationHooks: [
             async ({ page, request }) => {
-                return page.goto(request.url, { waitUntil: ['load', 'networkidle0'] });
+                // na 30 000 ms to casto pada, tak zkusime 100k
+                return page.goto(request.url, { waitUntil: ['load', 'networkidle0'], timeout: 100000 });
             },
-        ]
+        ],
+        handlePageTimeoutSecs: 100
     });
 
     await crawler.run();

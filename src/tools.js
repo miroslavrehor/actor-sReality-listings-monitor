@@ -236,7 +236,7 @@ const extractProperties = async ({ page, dataset }) => {
 }
 
 const enqueueNextPage = async ({ page, maxPages, requestQueue }) => {
-    log.info(`requestQueue: ${requestQueue.getInfo()}`);
+    log.info(`requestQueue: ${await requestQueue.getInfo()}`);
     await removeCookiesConsentBanner(page);
     const currentPage = await page.evaluate(() => {
         const currentPageSelector = document.querySelector('.paging-item > a.active');
