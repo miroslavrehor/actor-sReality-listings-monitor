@@ -25,15 +25,15 @@ Apify.main(async () => {
         maxPages,
     } = await getAndValidateInput();
 
-    // const sources = getSearchUrl(type);
-    const sources = [];
-    for (let i = 15; i < 20; i++) {
-        sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=${i}&bez-aukce=1`, userData: { label: 'searchPage' } });
-    }
-    sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1000&bez-aukce=1`, userData: { label: 'searchPage' } });
-    sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1001&bez-aukce=1`, userData: { label: 'searchPage' } });
-    sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1002&bez-aukce=1`, userData: { label: 'searchPage' } });
-    Apify.utils.log.info(sources.length);
+    const sources = getSearchUrl(type);
+    // const sources = [];
+    // for (let i = 15; i < 20; i++) {
+    //     sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=${i}&bez-aukce=1`, userData: { label: 'searchPage' } });
+    // }
+    // sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1000&bez-aukce=1`, userData: { label: 'searchPage' } });
+    // sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1001&bez-aukce=1`, userData: { label: 'searchPage' } });
+    // sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1002&bez-aukce=1`, userData: { label: 'searchPage' } });
+    // Apify.utils.log.info(sources.length);
 
     const requestList = await Apify.openRequestList('sources', sources);
     const requestQueue = (!maxPages || (maxPages && maxPages > 1)) ? await Apify.openRequestQueue() : undefined;
@@ -63,17 +63,16 @@ Apify.main(async () => {
             } else if (label === 'searchPage') {
                 await extractProperties({ page, dataset });
             }
-            // await enqueueNextPage({ page, maxPages, requestQueue });
+            await enqueueNextPage({ page, maxPages, requestQueue });
         },
         preNavigationHooks: [
             async ({ page, request }) => {
                 Apify.utils.log.info(`goto url: ${request.url}`);
-                // na 30 000 ms to casto pada, tak zkusime 100k
-                return page.goto(request.url, { waitUntil: ['load', 'networkidle0'], timeout: 100000 });
+                return page.goto(request.url, { waitUntil: ['load', 'networkidle0'] });
             },
         ],
-        handlePageTimeoutSecs: 100,
-        maxConcurrency: 1
+        // handlePageTimeoutSecs: 100,
+        // maxConcurrency: 1
     });
 
     await crawler.run();
