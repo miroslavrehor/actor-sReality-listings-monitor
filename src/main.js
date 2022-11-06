@@ -72,7 +72,8 @@ Apify.main(async () => {
                 return page.goto(request.url, { waitUntil: ['load', 'networkidle0'], timeout: 100000 });
             },
         ],
-        handlePageTimeoutSecs: 100
+        handlePageTimeoutSecs: 100,
+        maxConcurrency: 1
     });
 
     await crawler.run();
