@@ -151,13 +151,10 @@ const extractProperties = async ({ page, dataset }) => {
         const output = [];
         [...document.querySelectorAll('.dir-property-list > .property')].map((listing) => {
             if (!listing.querySelector('span[class*=tip]')) {
-                // name:        Prodej  rodinného domu 1 333 m², pozemek 2 184 m²
-                //              Prodej bytu 1+kk 1 137 m²
-                //              Pronájem bytu 2+1 1 163 m²
-                // locality:    Smrková, Doksy
-                //              Anny Letenské, Praha 2 - Vinohrady
-                // norm-price:  33 330 000 Kč
-                //              30 000 Kč za měsíc
+                // name:
+                // Prodej  rodinného domu 1 333 m², pozemek 2 184 m²
+                // Prodej bytu 1+kk 1 137 m²
+                // Pronájem bytu 2+1 1 163 m²
                 const name = listing.querySelector('.name').textContent;
                 const locality = listing.querySelector('.locality').textContent;
                 const normPrice = listing.querySelector('.norm-price').textContent;
@@ -173,10 +170,40 @@ const extractProperties = async ({ page, dataset }) => {
                     areaLand = namePart2.replace(/\s/g,'').match(/([0-9]+)/g)[1];
                 }
 
-                const cityLong = locality.split(", ")[1];
-                const city = cityLong.split(" - ")[0];
-                const cityDistrict = cityLong.split(" - ")[1];
+                // locality:
+                // Smrková, Doksy
+                // Anny Letenské, Praha 2 - Vinohrady
+                // Chotěšice - Břístev, okres Nymburk
+                // Úvaly, okres Praha-východ
+                // Praha 4
+                const locality0 = locality.split(", ")[0];
+                const locality1 = locality.split(", ")[1];
+                let street = "";
+                let city = "";
+                let cityDistrict = "";
+                let region = "";
+                if (locality1) {
+                    if (locality1.startsWith("okres")) {
+                        street = "";
+                        city = locality0.split(" - ")[0];
+                        cityDistrict = locality0.split(" - ")[1];
+                        region = locality1.replace("okres ", "");
+                    } else {
+                        street = locality0;
+                        city = locality1.split(" - ")[0];
+                        cityDistrict = locality1.split(" - ")[1];
+                        region = "";
+                    }
+                } else {
+                    street = "";
+                    city = locality0.split(" - ")[0];
+                    cityDistrict = locality0.split(" - ")[1];
+                    region = "";
+                }
 
+                // norm-price:
+                // 33 330 000 Kč
+                // 30 000 Kč za měsíc
                 let price = "";
                 let pricePerSqm = "";
                 if (normPrice) {
@@ -193,9 +220,10 @@ const extractProperties = async ({ page, dataset }) => {
                     property: property,
                     areaLiving: areaLiving,
                     areaLand: areaLand,
-                    street: locality.split(", ")[0],
+                    street: street,
                     city: city,
                     cityDistrict: cityDistrict,
+                    region: region,
                     price: price,
                     // description: TBD, na to kasleme, nejake labely zbytecne jenom
                     pricePerSqm: Math.round(pricePerSqm),

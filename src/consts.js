@@ -41,7 +41,7 @@ module.exports = {
     },
     ESTATE_TYPES: {
         apartment: {
-            url: 'https://www.sreality.cz/hledani/byty?no_shares=1&bez-aukce=1',
+            url: 'https://www.sreality.cz/hledani/byty?no_shares=1&vlastnictvi=osobni&bez-aukce=1',
             title: 'Byty',
             iconPath: 'icons/flat.svg',
             subtypes: {
