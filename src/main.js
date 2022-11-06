@@ -30,7 +30,7 @@ Apify.main(async () => {
     for (let i = 2; i < 30; i = i + 2) {
         sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=${i}&bez-aukce=1`, userData: { label: 'searchPage' } });
     }
-    Apify.utils.log(sources);
+    Apify.utils.log.info(sources);
 
     const requestList = await Apify.openRequestList('sources', sources);
     const requestQueue = (!maxPages || (maxPages && maxPages > 1)) ? await Apify.openRequestQueue() : undefined;
@@ -65,7 +65,7 @@ Apify.main(async () => {
         preNavigationHooks: [
             async ({ page, request }) => {
                 // na 30 000 ms to casto pada, tak zkusime 100k
-                Apify.utils.log(`goto url: ${request.url}`);
+                Apify.utils.log.info(`goto url: ${request.url}`);
                 return page.goto(request.url, { waitUntil: ['load', 'networkidle0'], timeout: 100000 });
             },
         ],
