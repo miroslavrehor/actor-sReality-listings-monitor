@@ -47,7 +47,7 @@ Apify.main(async () => {
             if (label === 'startPage') {
                 await selectOfferType({ page, offerType });
                 await selectSubtype({ page, subtype, type });
-                // await setLocation({ page, location });
+                await setLocation({ page, location });
                 await setOtherParams({ page, price, livingArea });
                 const propertiesFound = await loadSearchResults({ page, store, previousData, sendNotificationTo });
                 if (propertiesFound) await extractProperties({ page, dataset });

@@ -22,7 +22,8 @@ const getAndValidateInput = async () => {
     log.info(`Object Type: ${type}`);
     log.info(`Operation Type: ${offerType}`);
 
-    if (!offerType || !type || !location) {
+    // if (!offerType || !type || !location) {
+    if (!offerType || !type) {
         throw new Error('Check input! Offer type (sale/rent/auction), type (house/apartment/etc) or location are missing');
     }
 

@@ -412,7 +412,6 @@
     }
   },
   "required": [
-    "location",
     "offerType",
     "type"
   ]
