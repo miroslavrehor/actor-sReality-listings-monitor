@@ -84,6 +84,9 @@ const selectSubtype = async ({ page, subtype, type }) => {
 }
 
 const setLocation = async ({ page, location }) => {
+    if (!location) {
+        return;
+    }
     await removeCookiesConsentBanner(page);
     await page.type(SELECTORS.location.input, location);
     await page.waitForFunction(selector => document.querySelector(selector), { polling: 'mutation' }, SELECTORS.location.autocomplete);
