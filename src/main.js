@@ -63,7 +63,7 @@ Apify.main(async () => {
             } else if (label === 'searchPage') {
                 await extractProperties({ page, dataset });
             }
-            await enqueueNextPage({ page, maxPages, requestQueue });
+            // await enqueueNextPage({ page, maxPages, requestQueue });
         },
         preNavigationHooks: [
             async ({ page, request }) => {
