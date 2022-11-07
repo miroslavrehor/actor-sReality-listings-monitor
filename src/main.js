@@ -25,15 +25,15 @@ Apify.main(async () => {
         maxPages,
     } = await getAndValidateInput();
 
-    const sources = getSearchUrl(type);
-    // const sources = [];
-    // for (let i = 15; i < 20; i++) {
-    //     sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=${i}&bez-aukce=1`, userData: { label: 'searchPage' } });
-    // }
-    // sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1000&bez-aukce=1`, userData: { label: 'searchPage' } });
-    // sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1001&bez-aukce=1`, userData: { label: 'searchPage' } });
-    // sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1002&bez-aukce=1`, userData: { label: 'searchPage' } });
-    // Apify.utils.log.info(sources.length);
+    // const sources = getSearchUrl(type);
+    const sources = [];
+    for (let i = 10; i < 30; i++) {
+        sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=${i}&bez-aukce=1`, userData: { label: 'searchPage' } });
+    }
+    sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1000&bez-aukce=1`, userData: { label: 'searchPage' } });
+    sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1001&bez-aukce=1`, userData: { label: 'searchPage' } });
+    sources.push({ url: `https://www.sreality.cz/hledani/prodej/byty?no_shares=1&vlastnictvi=osobni&strana=1002&bez-aukce=1`, userData: { label: 'searchPage' } });
+    Apify.utils.log.info(sources.length);
 
     const requestList = await Apify.openRequestList('sources', sources);
     const requestQueue = (!maxPages || (maxPages && maxPages > 1)) ? await Apify.openRequestQueue() : undefined;
