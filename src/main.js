@@ -67,6 +67,7 @@ Apify.main(async () => {
         },
         preNavigationHooks: [
             async ({ page, request }) => {
+                Apify.utils.puppeteer.saveSnapshot(page, { key: request.url, saveHtml: true })
                 Apify.utils.log.info(`goto url: ${request.url}`);
                 return page.goto(request.url, { waitUntil: ['load', 'networkidle0'] });
             },
