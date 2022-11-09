@@ -1,14 +1,17 @@
-FROM apify/actor-node-puppeteer-chrome:16
+FROM apify/actor-node-puppeteer-chrome:18
 
-COPY package*.json ./
+COPY --chown=myuser package*.json ./
 
 RUN npm --quiet set progress=false \
- && npm install --only=prod --no-optional \
- && echo "Installed NPM packages:" \
- && npm list --all || true \
- && echo "Node.js version:" \
- && node --version \
- && echo "NPM version:" \
- && npm --version
+    && npm install --omit=dev --omit=optional \
+    && echo "Installed NPM packages:" \
+    && (npm list --omit=dev --all || true) \
+    && echo "Node.js version:" \
+    && node --version \
+    && echo "NPM version:" \
+    && npm --version \
+    && rm -r ~/.npm
 
-COPY . ./
+COPY --chown=myuser . ./
+
+CMD ./start_xvfb_and_run_cmd.sh && npm start --silent

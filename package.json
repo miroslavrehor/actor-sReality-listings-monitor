@@ -2,19 +2,21 @@
 	"name": "sreality-listings-monitor",
 	"version": "0.0.1",
 	"description": "Apify actor for monitoring of sReality listings",
+	"type": "module",
 	"dependencies": {
-		"apify": "^2.3.2",
+		"apify": "^3.1.0",
+		"@crawlee/puppeteer": "^3.1.1",
+		"@crawlee/utils": "^3.1.1",
 		"puppeteer": "*"
 	},
 	"devDependencies": {
-		"@apify/eslint-config": "0.3.1",
-		"eslint": "^8.16.0"
+		"@apify/eslint-config": "^0.3.1",
+		"eslint": "^8.27.0"
 	},
 	"scripts": {
 		"start": "node src/main.js",
 		"lint": "eslint ./src --ext .js,.jsx",
-		"lint:fix": "eslint ./src --ext .js,.jsx --fix",
-		"test": "echo \"Error: oops, the actor has no tests yet, sad!\" && exit 1"
+		"lint:fix": "eslint ./src --ext .js,.jsx --fix"
 	},
 	"author": {
 		"name": "Andrey Bykov",

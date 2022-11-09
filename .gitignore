@@ -1,2 +1,8 @@
-apify_storage
+.DS_Store
+.idea
+
+dist
 node_modules
+
+apify_storage
+storage

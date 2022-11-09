@@ -1,10 +1,10 @@
-const Apify = require('apify');
-const { SELECTORS, ESTATE_TYPES, OFFER_TYPES } = require('./consts');
+import { Actor } from 'apify';
+import { log } from '@crawlee/puppeteer';
+import { sleep } from '@crawlee/utils';
+import { SELECTORS, ESTATE_TYPES, OFFER_TYPES } from './consts.js'; // eslint-disable-line import/extensions
 
-const { utils: { log, sleep } } = Apify;
-
-const getAndValidateInput = async () => {
-    const input = await Apify.getInput();
+export async function getAndValidateInput() {
+    const input = await Actor.getInput();
     const {
         location,
         offerType,
@@ -56,46 +56,45 @@ const getAndValidateInput = async () => {
     };
 }
 
-const getSearchUrl = (type) => {
+export function getSearchUrl(type) {
     return [{
         url: ESTATE_TYPES[type].url,
-        userData: { label: 'startPage' },
+        label: 'startPage',
     }];
 }
 
-const selectOfferType = async ({ page, offerType }) => {
+export async function selectOfferType({ page, offerType }) {
     await removeCookiesConsentBanner(page);
     await page.click(OFFER_TYPES[offerType].selectors.switcher)
-        .catch(err => { throw new Error(`No selector matched: offerType -> ${offerType}`); });
+        .catch(() => {
+            throw new Error(`No selector matched | offerType: ${offerType}`);
+        });
     await sleep(1000);
 }
 
-const selectSubtype = async ({ page, subtype, type }) => {
+export async function selectSubtype({ page, subtype, type }) {
     await removeCookiesConsentBanner(page);
     if (subtype.length > 0) {
-        const subtypes = subtype.map(st => ESTATE_TYPES[type].subtypes[st]);
+        const subtypes = subtype.map((st) => ESTATE_TYPES[type].subtypes[st]);
         const $$subtype = await matchNodesByContents(page, SELECTORS.subtype, subtypes)
-            .catch(error => {
-                log.error(error.message);
+            .catch((err) => {
+                log.error(err.message);
                 throw Error(`No selector matched: subtype -> ${subtype.join('; ')}`);
             });
-        await Promise.all($$subtype.map($node => $node.click()));
+        await Promise.all($$subtype.map(($node) => $node.click()));
     }
 }
 
-const setLocation = async ({ page, location }) => {
-    if (!location) {
-        return;
-    }
+export async function setLocation({ page, location }) {
     await removeCookiesConsentBanner(page);
     await page.type(SELECTORS.location.input, location);
-    await page.waitForFunction(selector => document.querySelector(selector), { polling: 'mutation' }, SELECTORS.location.autocomplete);
+    await page.waitForFunction((sel) => document.querySelector(sel), { polling: 'mutation' }, SELECTORS.location.autocomplete);
     await sleep(1000);
     await page.keyboard.press('Enter');
     await sleep(1000);
 }
 
-const setOtherParams = async ({ page, price, livingArea }) => {
+export async function setOtherParams({ page, price, livingArea }) {
     await removeCookiesConsentBanner(page);
     if (price && price.from) await page.type(SELECTORS.price.from, price.from, { delay: 100 });
     if (price && price.to) await page.type(SELECTORS.price.to, price.to, { delay: 100 });
@@ -105,7 +104,7 @@ const setOtherParams = async ({ page, price, livingArea }) => {
     await sleep(2000);
 }
 
-const loadSearchResults = async ({ page, store, previousData, sendNotificationTo }) => {
+export async function loadSearchResults({ page, store, previousData, sendNotificationTo }) {
     await removeCookiesConsentBanner(page);
 
     const showResultsButton = await page.evaluate(() => {
@@ -116,7 +115,7 @@ const loadSearchResults = async ({ page, store, previousData, sendNotificationTo
     if (showResultsButton) {
         await Promise.all([
             page.waitForNavigation({ waitUntil: ['load', 'networkidle0'] }),
-            page.click(SELECTORS.submit)
+            page.click(SELECTORS.submit),
         ]);
         await page.waitForSelector('.dir-property-list');
     } else {
@@ -124,19 +123,21 @@ const loadSearchResults = async ({ page, store, previousData, sendNotificationTo
         await store.setValue('currentData', []);
         if (!previousData) {
             log.info('Initial run, no previously found listings. Sending email');
-            if (sendNotificationTo) await Apify.call('apify/send-mail', {
-                to: sendNotificationTo,
-                subject: 'Apify sRelity Listings Monitor - No Listing(s) Found',
-                text: 'No listing(s) matching your query found',
-            });
-        } else {
-            if (previousData.length > 0) {
-                log.info('Previously found listings were removed. Sending email')
-                await store.setValue('previousData', previousData);
-                if (sendNotificationTo) await Apify.call('apify/send-mail', {
+            if (sendNotificationTo) {
+                await Actor.call('apify/send-mail', {
                     to: sendNotificationTo,
-                    subject: 'Apify sRelity Listings Monitor - Listing(s) Removed',
-                    text: 'Previously found listing(s):' + '\n' + previousData.join('\n'),
+                    subject: 'Apify sReality Listings Monitor - No Listing(s) Found',
+                    text: 'No listing(s) matching your query found',
+                });
+            }
+        } else if (previousData.length > 0) {
+            log.info('Previously found listings were removed. Sending email');
+            await store.setValue('previousData', previousData);
+            if (sendNotificationTo) {
+                await Actor.call('apify/send-mail', {
+                    to: sendNotificationTo,
+                    subject: 'Apify sReality Listings Monitor - Listing(s) Removed',
+                    text: `Previously found listing(s):\n${previousData.join('\n')}`,
                 });
             }
         }
@@ -145,7 +146,7 @@ const loadSearchResults = async ({ page, store, previousData, sendNotificationTo
     return showResultsButton;
 }
 
-const extractProperties = async ({ page, dataset }) => {
+export async function extractProperties({ page, dataset }) {
     await removeCookiesConsentBanner(page);
     const listings = await page.evaluate(() => {
         const output = [];
@@ -235,8 +236,7 @@ const extractProperties = async ({ page, dataset }) => {
     await dataset.pushData(listings);
 }
 
-const enqueueNextPage = async ({ page, maxPages, requestQueue }) => {
-    log.info(`requestQueue: ${await requestQueue.getInfo()}`);
+export async function enqueueNextPage({ page, maxPages, crawler }) {
     await removeCookiesConsentBanner(page);
     const currentPage = await page.evaluate(() => {
         const currentPageSelector = document.querySelector('.paging-item > a.active');
@@ -246,39 +246,40 @@ const enqueueNextPage = async ({ page, maxPages, requestQueue }) => {
         const nextPageSelector = document.querySelector('.paging-item > a.paging-next');
         return nextPageSelector ? nextPageSelector.href : null;
     });
-    log.info(`nextPageUrl: ${nextPageUrl}`);
     if ((currentPage && maxPages && currentPage < maxPages) || (!maxPages && nextPageUrl)) {
-        await requestQueue.addRequest({ url: nextPageUrl, userData: { label: 'searchPage' } });
+        await crawler.addRequests([{
+            url: nextPageUrl,
+            label: 'searchPage',
+        }]);
     }
 }
 
-const compareDataAndSendNotification = async ({ store, dataset, previousData, sendNotificationTo }) => {
-    const outputItems = await dataset.getData().then(response => response.items);
-    const currentData = outputItems.map(entry => entry.url);
+export async function compareDataAndSendNotification({ store, dataset, previousData, sendNotificationTo }) {
+    const outputItems = await dataset.getData().then((resp) => resp.items);
+    const currentData = outputItems.map((entry) => entry.url);
     await store.setValue('currentData', currentData);
-    log.info(`${currentData.length} matching listing(s) found`)
+    log.info(`${currentData.length} matching listing(s) found`);
 
     if (!previousData) {
         log.info('Initial run, no previously found listings');
         if (sendNotificationTo) {
             log.info('Sending Email');
-            await Apify.call('apify/send-mail', {
+            await Actor.call('apify/send-mail', {
                 to: sendNotificationTo,
                 subject: 'Apify sRelity Listings Monitor - Listing(s) Found',
-                text: 'Found listing(s):' + '\n' + currentData.join('\n'),
+                text: `Found listing(s):\n${currentData.join('\n')}`,
             });
         }
     } else {
         await store.setValue('previousData', previousData);
-        if (!(previousData.every(e => currentData.includes(e)) && currentData.every(e => previousData.includes(e)))) {
+        if (!(previousData.every((e) => currentData.includes(e)) && currentData.every((e) => previousData.includes(e)))) {
             log.info('There were some updates');
             if (sendNotificationTo) {
                 log.info('Sending Email');
-                await Apify.call('apify/send-mail', {
+                await Actor.call('apify/send-mail', {
                     to: sendNotificationTo,
                     subject: 'Apify sRelity Listings Monitor - Listing(s) Updated',
-                    text: 'Currently found listing(s):' + '\n' + currentData.join('\n') + '\n\n'
-                        + 'Previously found listing(s):' + '\n' + previousData.join('\n'),
+                    text: `Currently found listing(s):\n${currentData.join('\n')}\n\nPreviously found listing(s):\n${previousData.join('\n')}`,
                 });
             }
         } else {
@@ -287,39 +288,26 @@ const compareDataAndSendNotification = async ({ store, dataset, previousData, se
     }
 }
 
-const matchNodesByContents = async (page, selector, contents) => {
+export async function matchNodesByContents(page, selector, contents) {
     await removeCookiesConsentBanner(page);
     contents = Array.isArray(contents) ? contents : [contents];
 
     const $$nodes = await page.$$(selector);
 
-    const nodes = await Promise.all($$nodes.map(async $node => ({
+    const nodes = await Promise.all($$nodes.map(async ($node) => ({
         node: $node,
-        content: await $node.evaluate(node => node.innerText)
+        content: await $node.evaluate((node) => node.innerText),
     })));
 
     return nodes
-        .filter(node => {
-            contents.some(content => {
+        .filter((node) => {
+            contents.some((content) => {
                 return node.content.trim().toLowerCase() === content.trim().toLowerCase();
             });
         })
-        .map(node => node.node);
-};
-
-const removeCookiesConsentBanner = async (page) => {
-    return page.evaluate(() => document.querySelector('.szn-cmp-dialog-container')?.remove());
+        .map((node) => node.node);
 }
 
-module.exports = {
-    getAndValidateInput,
-    getSearchUrl,
-    selectOfferType,
-    selectSubtype,
-    setLocation,
-    setOtherParams,
-    loadSearchResults,
-    enqueueNextPage,
-    extractProperties,
-    compareDataAndSendNotification,
-};
+export async function removeCookiesConsentBanner(page) {
+    return page.evaluate(() => document.querySelector('.szn-cmp-dialog-container')?.remove());
+}
