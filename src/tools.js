@@ -86,6 +86,9 @@ export async function selectSubtype({ page, subtype, type }) {
 }
 
 export async function setLocation({ page, location }) {
+    if (!location) {
+        return;
+    }
     await removeCookiesConsentBanner(page);
     await page.type(SELECTORS.location.input, location);
     await page.waitForFunction((sel) => document.querySelector(sel), { polling: 'mutation' }, SELECTORS.location.autocomplete);
