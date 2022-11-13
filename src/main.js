@@ -1,5 +1,5 @@
 import { Actor } from 'apify';
-import { PuppeteerCrawler } from '@crawlee/puppeteer';
+import { PuppeteerCrawler, KeyValueStore } from '@crawlee/puppeteer';
 import {
     getAndValidateInput,
     getSearchUrl,
@@ -67,7 +67,7 @@ const crawler = new PuppeteerCrawler({
 
             const { page } = ctx;
             const screenshot = await page.screenshot();
-            await keyValueStore.setValue('my-key', screenshot, { contentType: 'image/png' });
+            await KeyValueStore.setValue(page.url().replace(/[:/]/g, '_'), screenshot, { contentType: 'image/png' });
         },
     ]
 });
