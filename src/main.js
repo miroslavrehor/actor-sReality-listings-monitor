@@ -1,5 +1,6 @@
 import { Actor } from 'apify';
 import { PuppeteerCrawler } from '@crawlee/puppeteer';
+import { utils } from 'crawlee';
 import {
     getAndValidateInput,
     getSearchUrl,
@@ -62,6 +63,7 @@ const crawler = new PuppeteerCrawler({
         await enqueueNextPage({ page, maxPages, crawler });
     },
     preNavigationHooks: [
+        await utils.puppeteer.saveSnapshot(page, { key: 'my-key', saveHtml: true }),
         async (ctx, gotoOptions) => {
             gotoOptions.waitUntil = ['load', 'networkidle0'];
         },
