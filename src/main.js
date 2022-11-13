@@ -1,6 +1,5 @@
 import { Actor } from 'apify';
 import { PuppeteerCrawler } from '@crawlee/puppeteer';
-import { utils } from '@crawlee';
 import {
     getAndValidateInput,
     getSearchUrl,
@@ -67,7 +66,8 @@ const crawler = new PuppeteerCrawler({
             gotoOptions.waitUntil = ['load', 'networkidle0'];
 
             const { page } = ctx;
-            utils.puppeteer.saveSnapshot(page, { key: page.url(), saveHtml: true });
+            const screenshot = await page.screenshot();
+            await keyValueStore.setValue('my-key', screenshot, { contentType: 'image/png' });
         },
     ]
 });
