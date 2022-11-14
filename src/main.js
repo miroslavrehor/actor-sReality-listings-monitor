@@ -48,7 +48,7 @@ const crawler = new PuppeteerCrawler({
         const { url, label } = request;
         log.info(`Processing ${label} | ${url}`);
         const screenshot = await page.screenshot();
-        await KeyValueStore.setValue(url.replace(/[:/]/g, '_'), screenshot, { contentType: 'image/png' });
+        await KeyValueStore.setValue(url.replace(/[:/?&=]/g, '_'), screenshot, { contentType: 'image/png' });
 
         if (label === 'startPage') {
             await selectOfferType({ page, offerType });
