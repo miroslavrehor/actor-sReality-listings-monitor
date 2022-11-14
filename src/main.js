@@ -47,6 +47,8 @@ const crawler = new PuppeteerCrawler({
     async requestHandler({ page, request, log }) {
         const { url, label } = request;
         log.info(`Processing ${label} | ${url}`);
+        const screenshot = await page.screenshot();
+        await KeyValueStore.setValue(url.replace(/[:/]/g, '_'), screenshot, { contentType: 'image/png' });
 
         if (label === 'startPage') {
             await selectOfferType({ page, offerType });
@@ -64,10 +66,6 @@ const crawler = new PuppeteerCrawler({
     preNavigationHooks: [
         async (ctx, gotoOptions) => {
             gotoOptions.waitUntil = ['load', 'networkidle0'];
-
-            const { page } = ctx;
-            const screenshot = await page.screenshot();
-            await KeyValueStore.setValue(page.url().replace(/[:/]/g, '_'), screenshot, { contentType: 'image/png' });
         },
     ]
 });
