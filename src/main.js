@@ -1,5 +1,5 @@
 import { Actor } from 'apify';
-import { PuppeteerCrawler, KeyValueStore } from '@crawlee/puppeteer';
+import { PuppeteerCrawler, KeyValueStore, log } from '@crawlee/puppeteer';
 import {
     getAndValidateInput,
     getSearchUrl,
@@ -42,13 +42,13 @@ const crawler = new PuppeteerCrawler({
     proxyConfiguration,
     launchContext: {
         useChrome: true,
-        launchOptions: { headless: false },
+        launchOptions: { headless: true },
     },
     async requestHandler({ page, request, log }) {
         const { url, label } = request;
         log.info(`Processing ${label} | ${url}`);
-        const screenshot = await page.screenshot();
-        await KeyValueStore.setValue(url.replace(/[:/?&=]/g, '_'), screenshot, { contentType: 'image/png' });
+        // const screenshot = await page.screenshot();
+        // await KeyValueStore.setValue(url.replace(/[:/?&=]/g, '_'), screenshot, { contentType: 'image/png' });
 
         if (label === 'startPage') {
             await selectOfferType({ page, offerType });
