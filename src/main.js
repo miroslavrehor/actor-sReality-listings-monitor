@@ -36,10 +36,11 @@ const storeName = `sReality-monitor-store-${!process.env.APIFY_ACTOR_TASK_ID
 const store = await Actor.openKeyValueStore(storeName);
 const previousData = await store.getValue('currentData');
 
-const proxyConfiguration = await Actor.createProxyConfiguration(proxy);
+// const proxyConfiguration = await Actor.createProxyConfiguration(proxy);
+const urlTemplate = "https://www.sreality.cz/hledani/prodej/domy?no_shares=1&bez-aukce=1&strana=";
 
 const crawler = new PuppeteerCrawler({
-    proxyConfiguration,
+    // proxyConfiguration,
     launchContext: {
         useChrome: true,
         launchOptions: { headless: true },
@@ -51,17 +52,34 @@ const crawler = new PuppeteerCrawler({
         // await KeyValueStore.setValue(url.replace(/[:/?&=]/g, '_'), screenshot, { contentType: 'image/png' });
 
         if (label === 'startPage') {
-            await selectOfferType({ page, offerType });
-            await selectSubtype({ page, subtype, type });
-            await setLocation({ page, location });
-            await setOtherParams({ page, price, livingArea });
+            // await selectOfferType({ page, offerType });
+            // await selectSubtype({ page, subtype, type });
+            // await setLocation({ page, location });
+            // await setOtherParams({ page, price, livingArea });
             const propertiesFound = await loadSearchResults({ page, store, previousData, sendNotificationTo });
             if (propertiesFound) await extractProperties({ page, dataset });
+        } else if (label === 'firstSearchPage') {
+            const totalPages = await page.evaluate(() => {
+                const pagingInfo = document.querySelector('.paging > .info').textContent;
+                const totalListings = pagingInfo.match(/(\s([0-9]+\s)+)/g)[0].replace(/\s/g,'')
+                const LISTINGS_PER_PAGE = 20;
+                return Math.ceil(totalListings / LISTINGS_PER_PAGE);
+            });
+            log.info(totalPages);
+            const newRequests = []
+            for (let i = 2; i < totalPages; i++) {
+                newRequests.push({
+                    url: `${urlTemplate}${i}`,
+                    label: 'searchPage'
+                });
+            }
+            log.info(newRequests.length);
+            await crawler.addRequests(newRequests);
         } else if (label === 'searchPage') {
             await extractProperties({ page, dataset });
         }
 
-        await enqueueNextPage({ page, maxPages, crawler });
+        // await enqueueNextPage({ page, maxPages, crawler });
     },
     preNavigationHooks: [
         async (ctx, gotoOptions) => {
@@ -70,7 +88,11 @@ const crawler = new PuppeteerCrawler({
     ]
 });
 
-const initialRequests = getSearchUrl(type);
+// const initialRequests = getSearchUrl(type);
+const initialRequests = [{
+    url: `${urlTemplate}1`,
+    label: 'firstSearchPage'
+}]
 await crawler.run(initialRequests);
 
 await compareDataAndSendNotification({ store, dataset, previousData, sendNotificationTo });

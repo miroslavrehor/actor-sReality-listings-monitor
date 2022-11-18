@@ -4,6 +4,18 @@ import { sleep } from '@crawlee/utils';
 import { SELECTORS, ESTATE_TYPES, OFFER_TYPES } from './consts.js'; // eslint-disable-line import/extensions
 
 export async function getAndValidateInput() {
+    return {
+        proxy: undefined,
+        sendNotificationTo: undefined,
+        offerType: 'sale',
+        type: 'house',
+        subtype: undefined,
+        location: undefined,
+        price: undefined,
+        livingArea: undefined,
+        maxPages: undefined,
+    };
+
     const input = await Actor.getInput();
     const {
         location,
