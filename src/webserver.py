@@ -2,15 +2,16 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import datetime
 
-hostName = "localhost"
+hostName = "0.0.0.0"
 serverPort = 8080
 
-DATA_PATH = "kv"
+# DATA_PATH = "kv"
+DATA_PATH = "/home/king/storage/key_value_stores"
 SECRET_KEY = "q3049fagawq4b09qa45nab0hfsefSDGNOWEGwebowebiegae4g904a5gnaerg"
 
 
 class Category(object):
-    HOUSE_SALE = 'houses-sale'
+    HOUSES_SALE = 'houses-sale'
     APPARTMENTS_SALE = 'appartments-sale'
     APPARTMENTS_RENT = 'appartments-rent'
 
@@ -29,15 +30,15 @@ class MyServer(BaseHTTPRequestHandler):
             return self.getJsonForDate(today - datetime.timedelta(days=1), category)
 
     def sendResponse(self, category):
-        # self.wfile.write(bytes("%s" % self.path, "utf-8"))
-        self.wfile.write(bytes(self.getLastJson(category), 'utf-8'))
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
+        # self.wfile.write(bytes("%s" % self.path, "utf-8"))
+        self.wfile.write(bytes(self.getLastJson(category), 'utf-8'))
 
     def do_GET(self):
-        if self.path == f"/{SECRET_KEY}/{Category.HOUSE_SALE}":
-            self.sendResponse(Category.HOUSE_SALE)
+        if self.path == f"/{SECRET_KEY}/{Category.HOUSES_SALE}":
+            self.sendResponse(Category.HOUSES_SALE)
         elif self.path == f"/{SECRET_KEY}/{Category.APPARTMENTS_SALE}":
             self.sendResponse(Category.APPARTMENTS_SALE)
         elif self.path == f"/{SECRET_KEY}/{Category.APPARTMENTS_RENT}":
