@@ -29,7 +29,7 @@ await Actor.init();
 const dataset = await Actor.openDataset();
 
 const config = Configuration.getGlobalConfig();
-config.set('memoryMbytes', 1024);
+config.set('memoryMbytes', 1600);
 
 const crawler = new PuppeteerCrawler({
     maxConcurrency: 2,
