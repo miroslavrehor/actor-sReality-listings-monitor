@@ -2,17 +2,26 @@
 
 Search and monitor sReality listings
 
-## Usage
+## Install
 
-Enter location in free-form, as well as operation and object type. You could also specify relevant subtypes depending on object type. The actor also supports price and area filters. To be notified of new listings (or when the listings matching your criteria were changed or removed) provide your email address. Since it uses Puppeteer, the minimum memory for running is 2048 MB.
+GIT
+sudo apt install git
+git clone https://github.com/miroslavrehor/actor-sReality-listings-monitor.git
 
-_This actor does not extract/save any of the found listing's data except the link to the listing itself. Actor only helps you to automate your search. After the initial run, you could run it with the same input to monitor the changes. You will be notified in case previously found listing would be removed or other matching listings would be found._
+NODE
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
 
-## Input
+APIFY
+npm install apify crawlee playwright
 
-`location`, `offerType` and `type` are required. All other input properties are optional.
+CHROME
+sudo wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo apt install ./google-chrome-stable_current_amd64.deb
 
-## Output
+CRON
+crontab -e
+0 17 * * * node /home/king/actor-sReality-listings-monitor/src/main.js houses-sale
+0 19 * * * node /home/king/actor-sReality-listings-monitor/src/main.js appartments-sale
+0 21 * * * node /home/king/actor-sReality-listings-monitor/src/main.js appartments-rent
 
-Once the actor finishes, it will save found listings URLs to the Key-Value store.
-If there was an email provided on input - it would send a notification to provided email (providing information whether some listings matching criteria on input were found or not, as well as matching listings changed or were removed). It would also include listings URLs.

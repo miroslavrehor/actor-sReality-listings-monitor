@@ -1,5 +1,5 @@
 import { Actor } from 'apify';
-import { PuppeteerCrawler, KeyValueStore, log } from '@crawlee/puppeteer';
+import { PuppeteerCrawler, KeyValueStore, log, Configuration } from '@crawlee/puppeteer';
 import {
     extractProperties,
 } from './tools.js'; // eslint-disable-line import/extensions
@@ -27,6 +27,9 @@ switch (args[0]) {
 
 await Actor.init();
 const dataset = await Actor.openDataset();
+
+const config = Configuration.getGlobalConfig();
+config.set('memoryMbytes', 1024);
 
 const crawler = new PuppeteerCrawler({
     maxConcurrency: 2,
